@@ -1,0 +1,15 @@
+= content title
+  | Results
+= content main
+  {{if .Name}}
+  h1 Results for {{.Name}}
+  {{else}}
+  h1 All Results
+  {{end}}
+  hr
+
+  {{if .Results}}
+  = include _results .Results
+  {{else}}
+  h4 No results found
+  {{end}}

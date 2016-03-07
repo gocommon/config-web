@@ -1,0 +1,10 @@
+= content title
+  | Index
+= content main
+  {{if .Latest}}
+  h1 Latest Changes
+  hr
+  = include _audit .Latest
+  {{else}}
+  h3 There are no changes
+  {{end}}

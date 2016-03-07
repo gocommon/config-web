@@ -1,0 +1,30 @@
+= content title
+  | Config
+= content main
+  h1 Id: {{.Config.Id}}
+  hr
+
+
+  div.row
+    div.col-md-12
+      table.table.table-bordered.table-hover
+        tr
+          th Timestamp
+          td {{Timestamp .Config.ChangeSet.Timestamp}}
+        tr
+          th Id
+          td {{.Config.Id}}
+        tr
+          th Checksum
+          td {{.Config.ChangeSet.Checksum}}
+        tr
+          th Last Author
+          td {{.Config.Author}}
+        tr
+          th Last Comment
+          td {{.Config.Comment}}
+        tr
+          th Data
+          td
+            pre {{JSON .Config.ChangeSet.Data}}
+

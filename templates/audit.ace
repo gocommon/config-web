@@ -1,0 +1,23 @@
+= content title
+  | Audit Log
+= content main
+  {{if .Latest}}
+  h1 Audit Log
+  hr
+  = include _audit .Latest
+
+  div.row
+    div.col-md-12
+      nav
+        ul class="pager"
+          {{if .Less}}
+          li class="previous"
+            a href="?p={{.Less}}" <span aria-hidden="true">&larr;</span> Older
+          {{end}}
+          {{if .More}}
+          li class="next"
+            a href="?p={{.More}}" Newer <span aria-hidden="true">&rarr;</span>
+          {{end}}
+  {{else}}
+  h3 There are no changes
+  {{end}}

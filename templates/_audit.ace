@@ -1,0 +1,31 @@
+div.row
+  div.col-md-12
+    table.table.table-bordered.table-hover
+      thead
+        tr
+          th Timestamp
+          th Action
+          th Id
+          th Path
+          th Author
+          th Comment
+      tbody
+      {{range $i, $val := .}}
+        tr data-toggle="collapse" data-target="#change-{{$i}}"
+          td {{Timestamp .Change.Timestamp}}
+          td {{.Action}}
+          td <a href={{URL "config"}}/{{.Change.Id}}>{{.Change.Id}}</a>
+          td {{.Change.Path}}
+          td {{.Change.Author}}
+          td {{.Change.Comment}}
+          tr id="change-{{$i}}" class=collapse
+            td colspan=6
+              table.table.table-bordered.table-hover
+                tr
+                  td Checksum
+                  td {{.Change.ChangeSet.Checksum}}
+                tr
+                  td Data
+                  td
+                    pre {{JSON .Change.ChangeSet.Data}}
+      {{end}}

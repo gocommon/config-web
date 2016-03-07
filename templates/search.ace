@@ -1,0 +1,18 @@
+= content title
+  | Search
+= content main
+  h1 Search Config
+  hr
+
+  div.row
+    div.col-md-6
+      form method=POST
+        div.form-group
+          label Id
+          input.form-control type=text id=id name=id placeholder="Id (optional)"
+        div.form-group
+          label Author
+          input.form-control type=text id=author name=author placeholder="Author (optional)"
+        div.form-group
+          button.btn.btn-default type=submit Search
+
