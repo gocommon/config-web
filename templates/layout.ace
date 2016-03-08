@@ -31,6 +31,7 @@ html lang=en
         div.col-md-2
           = include sidebar
         div.col-md-10
+          = include _alert .Alert
           = yield main
     script src=https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js
     script src=https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js

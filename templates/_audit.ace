@@ -5,7 +5,7 @@ div.row
         tr
           th Timestamp
           th Action
-          th Id
+          th ID
           th Path
           th Author
           th Comment
@@ -14,7 +14,7 @@ div.row
         tr data-toggle="collapse" data-target="#change-{{$i}}"
           td {{Timestamp .Change.Timestamp}}
           td {{.Action}}
-          td <a href={{URL "config"}}/{{.Change.Id}}>{{.Change.Id}}</a>
+          td <a href={{URL "read"}}/{{.Change.Id}}>{{.Change.Id}}</a>
           td {{.Change.Path}}
           td {{.Change.Author}}
           td {{.Change.Comment}}

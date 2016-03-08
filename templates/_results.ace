@@ -4,7 +4,7 @@ div.row
       thead
         tr
           th Timestamp
-          th Id
+          th ID
           th Checksum
           th Last Author
           th Last Comment
@@ -13,7 +13,7 @@ div.row
         tr data-toggle="collapse" data-target="#change-{{$i}}"
           td {{Timestamp .ChangeSet.Timestamp}}
           td {{.ChangeSet.Checksum}}
-          td <a href={{URL "config"}}/{{.Id}}>{{.Id}}</a>
+          td <a href={{URL "read"}}/{{.Id}}>{{.Id}}</a>
           td {{.Author}}
           td {{.Comment}}
           tr id="change-{{$i}}" class=collapse

@@ -9,12 +9,22 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
+	"github.com/gorilla/sessions"
 	proto "github.com/micro/config-srv/proto/config"
+)
+
+const (
+	alertId = "_s"
 )
 
 var (
 	colours = []string{"blue", "green", "yellow", "purple", "orange"}
+	store   = sessions.NewCookieStore([]byte("config"))
 )
+
+type Alert struct {
+	Type, Message string
+}
 
 type sortedConfigs struct {
 	configs []*proto.Change
@@ -50,6 +60,38 @@ func (s sortedLogs) Less(i, j int) bool {
 
 func (s sortedLogs) Swap(i, j int) {
 	s.logs[i], s.logs[j] = s.logs[j], s.logs[i]
+}
+
+func getAlert(w http.ResponseWriter, r *http.Request) *Alert {
+	sess, err := store.Get(r, alertId)
+	if err != nil {
+		return nil
+	}
+	defer sess.Save(r, w)
+
+	for _, i := range []string{"info", "error", "success"} {
+		f := sess.Flashes(i)
+		if f != nil {
+			if i == "error" {
+				i = "danger"
+			}
+
+			return &Alert{
+				Type:    i,
+				Message: f[0].(string),
+			}
+		}
+	}
+	return nil
+}
+
+func setAlert(w http.ResponseWriter, r *http.Request, msg string, typ string) {
+	sess, err := store.Get(r, alertId)
+	if err != nil {
+		return
+	}
+	sess.AddFlash(msg, typ)
+	sess.Save(r, w)
 }
 
 func colour(s string) string {
@@ -119,6 +161,13 @@ func Router() http.Handler {
 	r.HandleFunc("/", Index)
 	r.HandleFunc("/search", Search)
 	r.HandleFunc("/audit", AuditLog)
-	r.HandleFunc("/config/{id}", Config)
+	r.HandleFunc("/config", Config)
+	r.HandleFunc("/create", Create)
+	r.HandleFunc("/read", Read)
+	r.HandleFunc("/read/{id}", Read)
+	r.HandleFunc("/read/{id}/{path}", Read)
+	r.HandleFunc("/edit", Edit)
+	r.HandleFunc("/edit/{id}", Edit)
+	r.HandleFunc("/edit/{id}/{path}", Edit)
 	return r
 }

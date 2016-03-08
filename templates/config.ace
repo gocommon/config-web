@@ -1,7 +1,7 @@
 = content title
   | Config
 = content main
-  h1 Id: {{.Config.Id}}
+  h1 ID: {{.Id}}
   hr
 
 
@@ -9,14 +9,19 @@
     div.col-md-12
       table.table.table-bordered.table-hover
         tr
-          th Timestamp
-          td {{Timestamp .Config.ChangeSet.Timestamp}}
-        tr
-          th Id
+          th ID
           td {{.Config.Id}}
+        {{if .Path}}
+        tr
+          th Path
+          td {{.Path}}
+        {{end}}
         tr
           th Checksum
           td {{.Config.ChangeSet.Checksum}}
+        tr
+          th Last Update
+          td {{Timestamp .Config.ChangeSet.Timestamp}}
         tr
           th Last Author
           td {{.Config.Author}}
@@ -27,4 +32,7 @@
           th Data
           td
             pre {{JSON .Config.ChangeSet.Data}}
+      a href={{URL "edit"}}/{{.Config.Id}}
+        button.btn.btn-default Edit
+
 

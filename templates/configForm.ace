@@ -1,0 +1,43 @@
+= content title
+  | Config
+= content main
+  h1 Load Config
+  hr
+
+  div.row
+    div.col-md-6
+      form method=POST action={{URL "read"}}
+        div.form-group
+          label ID
+          input.form-control type=text id=id name=id placeholder="ID"
+        div.form-group
+          label Path
+          input.form-control type=text id=path name=path placeholder="Path (optional)"
+        div.form-group
+          button.btn.btn-default type=submit Load
+
+  hr
+
+  h1 Create Config
+
+  div.row
+    div.col-md-6
+      form method=POST action={{URL "create"}}
+        div.form-group
+          label ID
+          input.form-control type=text id=id name=id placeholder="ID"
+        div.form-group
+          label Path
+          input.form-control type=text id=path name=path placeholder="Path (optional)"
+        div.form-group
+          label Author
+          input.form-control type=text id=author name=author placeholder="Author"
+        div.form-group
+          label Comment
+          input.form-control type=text id=comment name=comment placeholder="Comment"
+        div.form-group
+          label Config
+          textarea.form-control id=config name=config rows=10 placeholder=""
+        div.form-group
+          button.btn.btn-default type=submit Create
+

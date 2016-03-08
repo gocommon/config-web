@@ -2,6 +2,8 @@ ul.nav.nav-sidebar
   li.h4
     a href={{URL "/"}} Home
   li
+    a href={{URL "config"}} Config
+  li
     a href={{URL "search"}} Search
   li
     a href={{URL "audit"}} Audit Log

@@ -1,9 +1,11 @@
 package handler
 
 import (
+	"crypto/sha1"
 	"fmt"
 	"html/template"
 	"net/http"
+	"net/url"
 	"path/filepath"
 	"sort"
 	"strconv"
@@ -13,8 +15,8 @@ import (
 	"github.com/yosssi/ace"
 	"golang.org/x/net/context"
 
-	//	proto "github.com/micro/go-platform/config/proto"
 	config "github.com/micro/config-srv/proto/config"
+	proto "github.com/micro/go-platform/config/proto"
 )
 
 var (
@@ -57,6 +59,12 @@ func render(w http.ResponseWriter, r *http.Request, tmpl string, data map[string
 		http.Redirect(w, r, "/", 302)
 		return
 	}
+
+	if data == nil {
+		data = make(map[string]interface{})
+	}
+
+	data["Alert"] = getAlert(w, r)
 
 	if err := tpl.Execute(w, data); err != nil {
 		fmt.Println(err)
@@ -130,6 +138,177 @@ func AuditLog(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+func Config(w http.ResponseWriter, r *http.Request) {
+	render(w, r, "configForm", nil)
+}
+
+func Create(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "POST" {
+		return
+	}
+
+	r.ParseForm()
+
+	id := r.Form.Get("id")
+	path := r.Form.Get("path")
+	author := r.Form.Get("author")
+	comment := r.Form.Get("comment")
+	conf := r.Form.Get("config")
+
+	if len(id) == 0 {
+		setAlert(w, r, "Id is blank", "error")
+		http.Redirect(w, r, r.Referer(), 302)
+		return
+	}
+
+	sum := fmt.Sprintf("%x", sha1.Sum([]byte(conf)))
+
+	_, err := configClient.Create(context.TODO(), &config.CreateRequest{
+		Change: &config.Change{
+			Id:        id,
+			Path:      path,
+			Author:    author,
+			Comment:   comment,
+			Timestamp: time.Now().Unix(),
+			ChangeSet: &proto.ChangeSet{
+				Timestamp: time.Now().Unix(),
+				Checksum:  sum,
+				Data:      conf,
+				Source:    "web",
+			},
+		},
+	})
+	if err != nil {
+		setAlert(w, r, err.Error(), "error")
+		http.Redirect(w, r, r.Referer(), 302)
+		return
+	}
+
+	http.Redirect(w, r, filepath.Join(hostPath(r), "read", id, url.QueryEscape(path)), 302)
+}
+
+func Edit(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+	path, _ := url.QueryUnescape(vars["path"])
+
+	if r.Method == "POST" {
+		r.ParseForm()
+
+		id := r.Form.Get("id")
+		path := r.Form.Get("path")
+		author := r.Form.Get("author")
+		comment := r.Form.Get("comment")
+		conf := r.Form.Get("config")
+
+		if len(id) == 0 {
+			setAlert(w, r, "Id is blank", "error")
+			http.Redirect(w, r, r.Referer(), 302)
+			return
+		}
+
+		sum := fmt.Sprintf("%x", sha1.Sum([]byte(conf)))
+
+		_, err := configClient.Update(context.TODO(), &config.UpdateRequest{
+			Change: &config.Change{
+				Id:        id,
+				Path:      path,
+				Author:    author,
+				Comment:   comment,
+				Timestamp: time.Now().Unix(),
+				ChangeSet: &proto.ChangeSet{
+					Timestamp: time.Now().Unix(),
+					Checksum:  sum,
+					Data:      conf,
+					Source:    "web",
+				},
+			},
+		})
+		if err != nil {
+			setAlert(w, r, err.Error(), "error")
+			http.Redirect(w, r, r.Referer(), 302)
+			return
+		}
+
+		http.Redirect(w, r, filepath.Join(hostPath(r), "read", id, url.QueryEscape(path)), 302)
+		return
+	}
+
+	// load edit form
+	if len(id) == 0 {
+		setAlert(w, r, "Id is blank", "error")
+		http.Redirect(w, r, r.Referer(), 302)
+		return
+	}
+
+	rsp, err := configClient.Read(context.TODO(), &config.ReadRequest{
+		Id:   id,
+		Path: path,
+	})
+
+	if err != nil {
+		setAlert(w, r, err.Error(), "error")
+		http.Redirect(w, r, "/", 302)
+		return
+	}
+
+	render(w, r, "editForm", map[string]interface{}{
+		"Id":     id,
+		"Path":   path,
+		"Config": rsp.Change,
+	})
+}
+
+func Read(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+	path, _ := url.QueryUnescape(vars["path"])
+
+	if r.Method == "POST" {
+		r.ParseForm()
+		// /config load request
+		if len(id) == 0 {
+			id := r.Form.Get("id")
+			path := r.Form.Get("path")
+
+			// no id
+			if len(id) == 0 {
+				http.Redirect(w, r, r.Referer(), 302)
+				return
+			}
+
+			http.Redirect(w, r, filepath.Join(hostPath(r), "read", id, url.QueryEscape(path)), 302)
+		}
+
+		// /config/{id} update
+
+		return
+	}
+
+	// no id, render form
+	if len(id) == 0 {
+		setAlert(w, r, "Id is blank", "error")
+		http.Redirect(w, r, r.Referer(), 302)
+		return
+	}
+
+	rsp, err := configClient.Read(context.TODO(), &config.ReadRequest{
+		Id:   id,
+		Path: path,
+	})
+
+	if err != nil {
+		http.Redirect(w, r, "/", 302)
+		return
+	}
+
+	render(w, r, "config", map[string]interface{}{
+		"Id":     id,
+		"Path":   path,
+		"Config": rsp.Change,
+	})
+}
+
 func Search(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		r.ParseForm()
@@ -191,27 +370,4 @@ func Search(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	render(w, r, "search", map[string]interface{}{})
-}
-
-func Config(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	id := vars["id"]
-
-	if len(id) == 0 {
-		http.Redirect(w, r, "/", 302)
-		return
-	}
-
-	rsp, err := configClient.Read(context.TODO(), &config.ReadRequest{
-		Id: id,
-	})
-	if err != nil {
-		http.Redirect(w, r, "/", 302)
-		return
-	}
-
-	render(w, r, "config", map[string]interface{}{
-		"Id":     id,
-		"Config": rsp.Change,
-	})
 }
