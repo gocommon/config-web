@@ -16,7 +16,7 @@ import (
 	"golang.org/x/net/context"
 
 	config "github.com/micro/config-srv/proto/config"
-	proto "github.com/micro/go-platform/config/proto"
+	proto "github.com/micro/go-os/config/proto"
 )
 
 var (

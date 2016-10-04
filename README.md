@@ -1,6 +1,6 @@
 # Config Web
 
-The config web is a dashboard for the platform config-srv. 
+The config web is a dashboard for the config service. 
 
 ## Getting started
 
