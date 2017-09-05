@@ -165,9 +165,9 @@ func Router() http.Handler {
 	r.HandleFunc("/create", Create)
 	r.HandleFunc("/read", Read)
 	r.HandleFunc("/read/{id}", Read)
-	r.HandleFunc("/read/{id}/{path}", Read)
+	r.HandleFunc("/read/{id}/{path:.*}", Read)
 	r.HandleFunc("/edit", Edit)
 	r.HandleFunc("/edit/{id}", Edit)
-	r.HandleFunc("/edit/{id}/{path}", Edit)
+	r.HandleFunc("/edit/{id}/{path:.*}", Edit)
 	return r
 }

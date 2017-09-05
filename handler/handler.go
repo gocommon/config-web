@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
-	"net/url"
 	"path/filepath"
 	"sort"
 	"strconv"
@@ -184,13 +183,13 @@ func Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.Redirect(w, r, filepath.Join(hostPath(r), "read", id, url.QueryEscape(path)), 302)
+	http.Redirect(w, r, filepath.Join(hostPath(r), "read", id, path), 302)
 }
 
 func Edit(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
-	path, _ := url.QueryUnescape(vars["path"])
+	path := vars["path"]
 
 	if r.Method == "POST" {
 		r.ParseForm()
@@ -230,7 +229,7 @@ func Edit(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		http.Redirect(w, r, filepath.Join(hostPath(r), "read", id, url.QueryEscape(path)), 302)
+		http.Redirect(w, r, filepath.Join(hostPath(r), "read", id, path), 302)
 		return
 	}
 
@@ -262,7 +261,7 @@ func Edit(w http.ResponseWriter, r *http.Request) {
 func Read(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
-	path, _ := url.QueryUnescape(vars["path"])
+	path := vars["path"]
 
 	if r.Method == "POST" {
 		r.ParseForm()
@@ -277,7 +276,7 @@ func Read(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 
-			http.Redirect(w, r, filepath.Join(hostPath(r), "read", id, url.QueryEscape(path)), 302)
+			http.Redirect(w, r, filepath.Join(hostPath(r), "read", id, path), 302)
 		}
 
 		// /config/{id} update
